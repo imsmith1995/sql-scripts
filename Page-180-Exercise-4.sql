@@ -8,6 +8,6 @@ Select AccountDescription,
 		on g.AccountNo = i.AccountNo
 
 	Group By AccountDescription
-	Having Count(1) > 1
+	Having Count(*) > 1
 
 	Order By LineItemCount DESC;
