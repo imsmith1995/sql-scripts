@@ -3,6 +3,7 @@ Use master;
 Drop database If Exists PRS;
 
 create database PRS;
+go
 
 Use PRS;
 
@@ -13,9 +14,9 @@ create TABLE Users (
     Firstname varchar(30) NOT NULL,
     Lastname varchar(30) NOT NULL,
     Phone varchar(12) NULL,
-    Email varchar(255) NOT NULL,
-    IsReviewer bit NOT NULL,
-    IsAdmin bit NOT NULL
+    Email varchar(255) NULL,
+    IsReviewer bit NOT NULL DEFAULT 0,
+    IsAdmin bit NOT NULL DEFAULT 0
 );
 
 create TABLE Vendors (
@@ -25,9 +26,9 @@ create TABLE Vendors (
     Address varchar(30) NOT NULL,
     City varchar(30) NOT NULL,
     State char(2) NOT NULL,
-    Zip varchar(5) NOT NULL,
-    Phone varchar (12) NOT NULL,
-    Email varchar(255) NOT NULL,
+    Zip char(5) NOT NULL,
+    Phone varchar (12) NULL,
+    Email varchar(255) NULL,
 );
 
 create TABLE Products (
@@ -35,7 +36,7 @@ create TABLE Products (
     PartNbr varchar(30) NOT NULL UNIQUE,
     Name varchar(30) NOT NULL,
     Price DECIMAL (11, 2) NOT NULL,
-    Unit varchar(30) NOT NULL,
+    Unit varchar(30) NOT NULL DEFAULT 'EACH',
     PhotoPath varchar(255)  NULL,
     VendorId INT NOT NULL FOREIGN KEY REFERENCES Vendors(Id)
 );
@@ -45,7 +46,7 @@ create TABLE Requests (
     Description varchar(80) NOT NULL,
     Justification varchar(80) NOT NULL,
     RejectionReason varchar(80) NULL,
-    Delivery varchar(20) NOT NULL DEFAULT 'Pickup',
+    DeliveryMode varchar(20) NOT NULL DEFAULT 'Pickup',
     Status varchar(10) NOT NULL DEFAULT 'NEW',
     Total DECIMAL (11,2) NOT NULL DEFAULT 0,
     UserId INT NOT NULL FOREIGN KEY REFERENCES Users(Id)
@@ -58,3 +59,23 @@ create TABLE RequestLines (
     Quantity INT NOT NULL DEFAULT 1
 );
 
+GO
+
+-- Add Users
+Insert Users (Username, Password, Firstname, Lastname, IsReviewer, IsAdmin) VALUES
+    ('sa', 'sa', 'Systems', 'Admin', 1, 1),
+    ('rv', 'rv', 'Systems', 'Reviewer', 1, Default),
+    ('us', 'us', 'Systems', 'User', 0, Default);
+    
+-- Add Vendors  
+INSERT Vendors (Code, Name, Address, City, State, Zip) VALUES
+    ('AMAZ', 'Amazon', '1 Amazon Way', 'Seatle', 'WA', '98765'),
+    ('MSFT', 'Microsoft', '1 Microsoft', 'Redmond', 'WA', '98765'),
+    ('BBUY', 'BestBuy', '1 Best Buy', 'Atlanta', 'GA', '12345');
+
+-- Add Products
+INSERT Products (PartNbr, Name, Price, VendorId) VALUES
+    ('Echo', 'Echo Std', 100, (SELECT Id from Vendors Where Code = 'AMAZ')),
+    ('EchoDot', 'Echo Dot', 50, (SELECT Id from Vendors Where Code = 'AMAZ')),
+    ('EchoShow5', 'Echo Show 5', 150, (SELECT Id from Vendors Where Code = 'AMAZ')),
+    ('EchoShow8', 'Echo Show 8', 200, (SELECT Id from Vendors Where Code = 'AMAZ'));
